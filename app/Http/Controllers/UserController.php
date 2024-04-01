@@ -2,64 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Todo;
-use Illuminate\Http\Request;
+use App\Models\User;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return view('user.index');
-    }
+        $search = request('search');
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        if ($search) {
+            $users = User::where(function ($query) use ($search) {
+                $query->where('name', 'like', '%'.$search.'%')
+                    ->orwhere('email', 'like', '%'.$search.'%');
+            })
+                ->orderBy('name')
+                ->where('id', '!=', '1')
+                ->paginate(20)
+                ->withQueryString();
+        } else {
+            $users = User::where('id', '!=', '1')
+                ->orderBy('name')
+                ->paginate(10);
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Todo $todo)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Todo $todo)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Todo $todo)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Todo $todo)
-    {
-        //
+        return view('user.index', compact('users'));
     }
 }

@@ -7,23 +7,58 @@ use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
-
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $todos = Todo::where('user_id', auth()->user()->id)->get();
+        $todos = Todo::where('user_id', auth()->user()->id)
+            ->orderBy('is_complate', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        dd($todos);
-        return view('todo.index');
+        // dd($todos);
+
+        return view('todo.index', compact('todos'));
     }
 
-
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         return view('todo.create');
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request, Todo $todo)
+    {
+        $request->validate([
+            'title' => 'required|max:255',
+        ]);
 
-    public function edit()
+        $todo = Todo::create([
+            'title' => ucfirst($request->title),
+            'user_id' => auth()->user()->id,
+        ]);
+
+        return redirect()->route('todo.index')->with('success', 'Todo created successfully!');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Todo $todo)
+    {
+        //nampilin satu2
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Todo $todo)
     {
         return view('todo.edit');
     }
@@ -33,7 +68,7 @@ class TodoController extends Controller
      */
     public function update(Request $request, Todo $todo)
     {
-        //
+        //update sesuatu
     }
 
     /**
@@ -41,6 +76,6 @@ class TodoController extends Controller
      */
     public function destroy(Todo $todo)
     {
-        //
+        //hapus data
     }
 }
